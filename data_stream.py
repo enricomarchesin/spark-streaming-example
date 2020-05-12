@@ -71,15 +71,24 @@ def run_spark_job(spark):
 
     # TODO select original_crime_type_name and disposition
     distinct_table = service_table.select("original_crime_type_name", "disposition").distinct()
+    # distinct_table = service_table.select("original_crime_type_name", "disposition", "call_date_time").distinct()
 
     # count the number of original crime type
-    agg_df = distinct_table.groupBy().count()
+    agg_df = distinct_table.groupBy("original_crime_type_name").count()
+
+    # agg_df = distinct_table \
+    #     .select("original_crime_type_name","call_date_time") \
+    #     .withWatermark("call_date_time", "60 minutes") \
+    #     .groupBy(psf.window("call_date_time", "10 minutes", "5 minutes"), "original_crime_type_name") \
+    #     .count()
 
     # TODO Q1. Submit a screen shot of a batch ingestion of the aggregation
     # TODO write output stream
+    # query = agg_df \
+    #     .writeStream \
+    #     .trigger(processingTime="5 seconds") \
     query = agg_df \
         .writeStream \
-        .trigger(processingTime="10 seconds") \
         .outputMode('Complete') \
         .format('console') \
         .option("truncate", "false") \
@@ -90,20 +99,20 @@ def run_spark_job(spark):
     query.awaitTermination()
 
     # # TODO get the right radio code json path
-    # radio_code_json_filepath = ""
-    # radio_code_df = spark.read.json(radio_code_json_filepath)
+    radio_code_json_filepath = "radio_code.json"
+    radio_code_df = spark.read.json(radio_code_json_filepath)
 
-    # # clean up your data so that the column names match on radio_code_df and agg_df
-    # # we will want to join on the disposition code
+    # clean up your data so that the column names match on radio_code_df and agg_df
+    # we will want to join on the disposition code
 
-    # # TODO rename disposition_code column to disposition
-    # radio_code_df = radio_code_df.withColumnRenamed("disposition_code", "disposition")
+    # TODO rename disposition_code column to disposition
+    radio_code_df = radio_code_df.withColumnRenamed("disposition_code", "disposition")
 
-    # # TODO join on disposition column
-    # join_query = agg_df.
+    # TODO join on disposition column
+    join_query = agg_df.join(radio_code_df, "disposition")
+    join_query.collect().show()
 
-
-    # join_query.awaitTermination()
+    join_query.awaitTermination()
 
 
 if __name__ == "__main__":
@@ -116,7 +125,7 @@ if __name__ == "__main__":
         .config("spark.ui.port", 3000) \
         .appName("SF Crime Stats Analyzer") \
         .getOrCreate()
-    # spark.conf.set("spark.sql.shuffle.partitions", "1")
+    spark.conf.set("spark.sql.shuffle.partitions", "8")
 
     logger.info("Spark started")
 
