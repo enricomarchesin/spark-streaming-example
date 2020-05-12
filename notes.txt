@@ -1,0 +1,7 @@
+python kafka_server.py
+
+docker-compose exec kafka0 kafka-console-consumer --bootstrap-server localhost:9092 --topic sf.stats.crimes  --from-beginning
+
+python consumer_server.py
+
+spark-submit  --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream.py
