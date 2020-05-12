@@ -5,3 +5,6 @@ __pycache__/
 
 # Editors
 /.vscode/
+
+# Data file (uncompressed)
+police-department-calls-for-service.json
