@@ -4,5 +4,7 @@ docker-compose exec kafka0 kafka-console-consumer --bootstrap-server localhost:9
 
 python consumer_server.py
 
-spark-submit  --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream.py
-spark-submit  --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream.py 2>/dev/null
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream_structured.py
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream_structured.py 2>/dev/null
+
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 data_stream.py

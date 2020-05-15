@@ -8,3 +8,7 @@ __pycache__/
 
 # Data file (uncompressed)
 police-department-calls-for-service.json
+
+# Kafka
+/kafka_2.12-2.5.0/
+kafka_*-*.tgz
