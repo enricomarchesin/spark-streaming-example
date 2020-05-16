@@ -2,3 +2,4 @@ findspark
 pyspark
 python-dateutil
 pathlib
+psutil

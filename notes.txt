@@ -1,7 +1,7 @@
 workon udacity-spark-project
 cd kafka_2.12-2.5.0/
-bin/kafka-server-start.sh config/server.properties
 bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
 
 python kafka_server.py
 
@@ -9,8 +9,8 @@ docker-compose exec kafka0 kafka-console-consumer --bootstrap-server localhost:9
 
 python consumer_server.py
 
-spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream_structured.py
-spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream_structured.py 2>/dev/null
+spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream.py 2>/dev/null
+http://localhost:3000/
 
-spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 data_stream.py
+spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 data_stream_legacy.py
 http://localhost:4040/streaming/
