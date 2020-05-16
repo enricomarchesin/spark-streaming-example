@@ -4,6 +4,7 @@ import os
 from uuid import uuid4
 
 from pyspark import SparkContext
+from pyspark.sql import SQLContext
 from pyspark.conf import SparkConf
 from pyspark.streaming import StreamingContext
 from pyspark.streaming.kafka import KafkaUtils
@@ -12,6 +13,7 @@ from pyspark.streaming.kafka import KafkaUtils
 def run_spark_job(sc):
     ssc = StreamingContext(sc, 5)
     ssc.checkpoint("file:///tmp/spark")
+    sqlc = SQLContext(sc)
 
     gid = str(uuid4())[:6]
     kafka_topic = 'sf.stats.crimes'
@@ -36,18 +38,24 @@ def run_spark_job(sc):
     crime_types_counts_sorted_windowed = crime_types_counts_sorted.window(60, 15)
     crime_types_counts_sorted_windowed.pprint()
 
-    # # TODO get the right radio code json path
-    # radio_code_json_filepath = ""
-    # radio_code_df = spark.read.json(radio_code_json_filepath)
 
-    # # clean up your data so that the column names match on radio_code_df and agg_df
-    # # we will want to join on the disposition code
+    # Get radio code json
+    radio_code_json_filename = "radio_code.json"
+    radio_code_df = sqlc.read.json(radio_code_json_filename, multiLine=True)
 
-    # # TODO rename disposition_code column to disposition
-    # radio_code_df = radio_code_df.withColumnRenamed("disposition_code", "disposition")
+    # clean up data so that the column names match on radio_code_df and agg_df
+    # we will want to join on the disposition code
 
-    # # TODO join on disposition column
-    # join_query = agg_df.
+    # rename disposition_code column to disposition
+    radio_code_df_renamed = (
+        radio_code_df
+            .withColumnRenamed("disposition_code", "disposition")
+            .withColumnRenamed("description", "disposition_description")
+    )
+    radio_code_df_renamed.select('*').show(truncate=False)
+
+    # join on disposition column
+    # joined_df = parsed.join(radio_code_df_renamed, "disposition")
 
     ssc.start()
     ssc.awaitTermination()
@@ -56,12 +64,10 @@ def run_spark_job(sc):
 if __name__ == "__main__":
     logger = logging.getLogger(__name__)
 
-    # os.environ['PYSPARK_SUBMIT_ARGS'] = '--packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.0.2 pyspark-shell'
-
     conf = SparkConf()
     conf.setMaster("local[*]")
     conf.setAppName("SF Crime Stats Analyzer")
-    conf.set("spark.streaming.kafka.maxRatePerPartition", 100000)
+    conf.set("spark.streaming.kafka.maxRatePerPartition", 10000)
     sc = SparkContext(conf=conf)
     sc.setLogLevel("WARN")
 
