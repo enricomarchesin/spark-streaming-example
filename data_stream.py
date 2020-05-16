@@ -7,7 +7,7 @@ from pyspark.sql.types import *
 import pyspark.sql.functions as psf
 
 
-# Schemas for incoming resources
+# Schema for incoming resources
 calls_schema = StructType([
     StructField("crime_id", StringType(), True),
     StructField("original_crime_type_name", StringType(), True),
@@ -23,10 +23,6 @@ calls_schema = StructType([
     StructField("agency_id", StringType(), True),
     StructField("address_type", StringType(), True),
     StructField("common_location", StringType(), True),
-])
-radiocodes_schema = StructType([
-    StructField("disposition_code", StringType(), True),
-    StructField("description", StringType(), True),
 ])
 
 

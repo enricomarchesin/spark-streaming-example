@@ -1,6 +1,8 @@
 # Udacity Data Streaming Nanodegree - S.F. Crime Stats
 
+
 ## How to use
+
 
 ### 1. One time setup
 
@@ -11,6 +13,7 @@ mkvirtualenv udacity-spark-project
 pip install -r requirements.txt
 ```
 
+
 ### 2. Start Kafka cluster
 
 Then the first thing to do is standing up a Kafka cluster to stream data to and from. This can be easily done using the provided docker-compose.yml config:
@@ -19,22 +22,26 @@ Then the first thing to do is standing up a Kafka cluster to stream data to and 
 docker-compose up -d
 ```
 
-After 20-40 seconds, depending on how powerful is your development machine, the cluster should be up. You can check using the following commands:
+After 20-40 seconds (depending on how powerful your development machine is), the cluster should be up. 
+
+You can check its state using the following commands:
 
 ```bash
 docker-compose ps
 docker-compose logs
 ```
 
+
 ### 3. Get sample data into local Kafka cluster
 
-The first thing we need to do is push the sample data to a Kafka topic:
+The first thing we need to do is push the sample data to a Kafka topic (`sf.stats.crimes`):
 
 ```bash
 python kafka_server.py
 ```
 
-_Note: one dot will be printed every 100 events published, and each line will contain 100 dots (199999 messages total, 100*100 messages per line, so total 20 lines should be printed)._
+One dot will be printed every 100 call events published, and each line will contain 100 dots. There are 199999 calls total in the JSON file: with 100*100 messages per line, a total of 20 lines should be printed.
+
 
 ### 4a. Consume using Spark Structured Streaming
 
@@ -44,7 +51,7 @@ Just run:
 spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.11:2.4.5 data_stream.py 2>/dev/null
 ```
 
-You will find the Spark UI at: http://localhost:3000/
+You will find the Spark UI at: http://localhost:4040/
 
 
 ### 4b. Consume using Spark Streaming (DStreams)
@@ -58,7 +65,10 @@ spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.5 da
 The Spark Streaming UI will be available at: http://localhost:4040/streaming/
 
 
-## Q1. How did changing values on the SparkSession property parameters affect the throughput and latency of the data?
+## Questions about Structured Streaming approach
+
+
+### Q1. How did changing values on the SparkSession property parameters affect the throughput and latency of the data?
 
 When `.trigger(processingTime=XYZ)` is set on the Structured Stram, the most important parameter is `maxOffsetsPerTrigger`.
 
@@ -76,7 +86,7 @@ Another way to control throughput and latency is using these options on the stre
 ```
 
 
-## Q2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?
+### Q2. What were the 2-3 most efficient SparkSession property key/value pairs? Through testing multiple variations on values, how can you tell these were the most optimal?
 
 Spark provides a huge amount of settings to tweak. The correct recipe strongly depends on the overall architecture of the solution, network latency (between data sources/sinks, Spark driver and Spark executors), and the type and size of data being processed.
 
